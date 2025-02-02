@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SixAds Anzeigen</title>
+    <style>
+        .sixads-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+        }
+        .banner-section {
+            flex: 1 1 calc(33.33% - 20px);
+            max-width: 300px;
+        }
+        .banner-img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .sixads {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .sixads .link {
+            display: inline-block;
+            background-color: #007bff;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        @media (max-width: 1024px) {
+            .banner-section {
+                flex: 1 1 calc(50% - 20px);
+            }
+        }
+        @media (max-width: 768px) {
+            .banner-section {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="sixads-container" id="sixads-container">
+    <!-- Die Banner werden hier dynamisch eingefügt -->
+</div>
+
+<script>
+    async function fetchBanners() {
+        const screenWidth = window.innerWidth;
+        let bannerLimit;
+
+        // Anzahl der Banner basierend auf der Bildschirmgröße
+        if (screenWidth <= 768) {
+            bannerLimit = 1; // Für Mobile
+        } else if (screenWidth <= 1024) {
+            bannerLimit = 2; // Für Tablets
+        } else {
+            bannerLimit = 3; // Für Desktop
+        }
+
+        // Banner von der API abrufen
+        const response = await fetch(`https://backend.6love.ch/api/banners-with-impressions/?limit=${bannerLimit}`);
+        if (!response.ok) throw new Error(`Fehler beim Abrufen der Banner: ${response.statusText}`);
+        const banners = await response.json();
+
+        const container = document.getElementById("sixads-container");
+        container.innerHTML = ''; // Vorherige Banner entfernen
+
+        // Banner dynamisch einfügen
+        banners.forEach((banner, index) => {
+            const bannerDiv = document.createElement('div');
+            bannerDiv.className = 'banner-section';
+            bannerDiv.innerHTML = `
+                    <div class="banner-content">
+                        <a href="${banner.link}" target="_blank" rel="nofollow noopener" onclick="return openInNewTab('${banner.link}')">
+                            <img src="${banner.image.full}" alt="${banner.text}" class="banner-img" />
+                        </a>
+                        <div class="sixads">
+                            <a href="https://6love.ch/de/pricing" class="link" onclick="return openInNewTab('https://6love.ch/de/pricing')">SixAds</a>
+                        </div>
+                    </div>
+                `;
+            container.appendChild(bannerDiv);
+        });
+    }
+
+    function openInNewTab(url) {
+        window.open(url, '_blank');
+        return false;
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchBanners);
+    window.addEventListener('resize', () => {
+        clearTimeout(window.resizedFinished);
+        window.resizedFinished = setTimeout(fetchBanners, 250); // Neu laden bei Fenstergrößenänderung
+    });
+</script>
+</body>
+</html>
