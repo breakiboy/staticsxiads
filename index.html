@@ -46,6 +46,66 @@
                 flex: 1 1 100%;
             }
         }
+
+        /* Network Section */
+        .network-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+        }
+        .network-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #e91e63;
+            font-weight: 600;
+        }
+        .network-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .network-section li {
+            margin-bottom: 0.5rem;
+        }
+        .network-section a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+        .network-section a:hover {
+            color: #e91e63;
+        }
+
+        /* Footer */
+        footer {
+            background: #0f0f1a;
+            color: rgba(255,255,255,0.6);
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.85rem;
+        }
+        .footer-links {
+            margin-bottom: 1rem;
+        }
+        .footer-links a {
+            color: rgba(255,255,255,0.6);
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+        .footer-links a:hover {
+            color: #e91e63;
+        }
+        .footer-links .divider {
+            color: rgba(255,255,255,0.3);
+        }
+        footer .copyright a {
+            color: #e91e63;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -54,6 +114,15 @@
 </div>
 
 <script>
+    async function fetchSingleBanner() {
+        const randomParam = `nocache=${Math.random()}`;
+        const response = await fetch(`https://backend.6love.ch/api/banners-with-impressions/?limit=1&${randomParam}`, {
+            cache: 'no-store'
+        });
+        if (!response.ok) throw new Error(`Fehler beim Abrufen des Banners: ${response.statusText}`);
+        return await response.json();
+    }
+
     async function fetchBanners() {
         const screenWidth = window.innerWidth;
         let bannerLimit;
@@ -67,30 +136,32 @@
             bannerLimit = 3; // Für Desktop
         }
 
-        // Banner von der API abrufen
-        const response = await fetch(`https://backend.6love.ch/api/banners-with-impressions/?limit=${bannerLimit}`);
-        if (!response.ok) throw new Error(`Fehler beim Abrufen der Banner: ${response.statusText}`);
-        const banners = await response.json();
-
         const container = document.getElementById("sixads-container");
         container.innerHTML = ''; // Vorherige Banner entfernen
 
-        // Banner dynamisch einfügen
-        banners.forEach((banner, index) => {
-            const bannerDiv = document.createElement('div');
-            bannerDiv.className = 'banner-section';
-            bannerDiv.innerHTML = `
-                    <div class="banner-content">
-                        <a href="${banner.link}" target="_blank" rel="nofollow noopener" onclick="return openInNewTab('${banner.link}')">
-                            <img src="${banner.image.full}" alt="${banner.text}" class="banner-img" />
-                        </a>
-                        <div class="sixads">
-                            <a href="https://6love.ch/de/pricing" class="link" onclick="return openInNewTab('https://6love.ch/de/pricing')">SixAds</a>
-                        </div>
+        // Mehrfach einzelne Banner abrufen
+        for (let i = 0; i < bannerLimit; i++) {
+            try {
+                const bannerData = await fetchSingleBanner();
+                const banner = bannerData[0]; // Da limit=1, kommt ein einzelnes Banner in einem Array zurück
+
+                const bannerDiv = document.createElement('div');
+                bannerDiv.className = 'banner-section';
+                bannerDiv.innerHTML = `
+                <div class="banner-content">
+                    <a href="${banner.link}" target="_blank" rel="nofollow noopener" onclick="return openInNewTab('${banner.link}')">
+                        <img src="${banner.image.full}" alt="${banner.text}" class="banner-img" />
+                    </a>
+                    <div class="sixads">
+                        <a href="https://6love.ch/de/pricing" class="link" onclick="return openInNewTab('https://6love.ch/de/pricing')">SixAds</a>
                     </div>
-                `;
-            container.appendChild(bannerDiv);
-        });
+                </div>
+            `;
+                container.appendChild(bannerDiv);
+            } catch (error) {
+                console.error("Fehler beim Laden eines Banners:", error);
+            }
+        }
     }
 
     function openInNewTab(url) {
@@ -103,6 +174,132 @@
         clearTimeout(window.resizedFinished);
         window.resizedFinished = setTimeout(fetchBanners, 250); // Neu laden bei Fenstergrößenänderung
     });
+
 </script>
+
+<!-- Network Section -->
+<section class="network-section">
+  <div>
+    <h3>Social Media</h3>
+    <ul>
+      <li><a href="https://instagram.com/6love_swiss">Instagram</a></li>
+      <li><a href="https://www.facebook.com/6loveCH/">Facebook</a></li>
+      <li><a href="https://www.threads.net/@6love_swiss">Threads</a></li>
+      <li><a href="https://x.com/6loveCH">X (Twitter)</a></li>
+      <li><a href="https://www.youtube.com/@6love963">YouTube</a></li>
+      <li><a href="https://www.snapchat.com/add/sixlove.ch">Snapchat</a></li>
+      <li><a href="https://api.whatsapp.com/send?phone=417787394445">WhatsApp</a></li>
+      <li><a href="https://www.tiktok.com/@069darkangel">TikTok</a></li>
+      <li><a href="https://mastodon.social/@6love">Mastodon</a></li>
+      <li><a href="mailto:info@6love.ch">E-Mail</a></li>
+      <li><a href="https://bsky.app/profile/sixlove.bsky.social">Bluesky</a></li>
+      <li><a href="https://discord.gg/fC5PGATNkX">Discord</a></li>
+      <li><a href="https://www.twitch.tv/6lovech">Twitch</a></li>
+      <li><a href="https://github.com/breakiboy/6love">GitHub</a></li>
+      <li><a href="https://www.linkedin.com/in/evren-yilmaz-6a62a6a7/">LinkedIn</a></li>
+      <li><a href="https://t.me/sixlovenet">Telegram</a></li>
+      <li><a href="https://www.pinterest.de/sixlove/">Pinterest</a></li>
+      <li><a href="https://soundcloud.com/6love-ch">SoundCloud</a></li>
+      <li><a href="https://www.patreon.com/c/Sixlove">Patreon</a></li>
+      <li><a href="https://fans.ly/r/6love">Fansly</a></li>
+      <li><a href="https://fancentro.com/sell/registration/?acode=8dEYtVin">Fancentro</a></li>
+      <li><a href="https://onlyfans.com/sixlove-swiss">OnlyFans</a></li>
+    </ul>
+  </div>
+  <div>
+    <h3>Websites</h3>
+    <ul>
+      <li><a href="https://6love.ch">6love Sex Portal</a></li>
+      <li><a href="https://sexportale.my.canva.site">Sixlove Sky</a></li>
+      <li><a href="https://sixnetwork.ch">Sixnetwork</a></li>
+      <li><a href="https://www.yilmaz.services">Yilmaz Services</a></li>
+      <li><a href="https://sexdate.services">Sexdate Services</a></li>
+      <li><a href="https://storage.googleapis.com/xdate/index.html">24/7 xdates</a></li>
+      <li><a href="https://sixlove.ch/">Sixlove</a></li>
+      <li><a href="https://sixads.ch/">Sixads</a></li>
+      <li><a href="https://sixbot.ch/">Sixbot</a></li>
+      <li><a href="https://sixmap.ch/">Sixmap</a></li>
+      <li><a href="https://escort-bayan.vip/">Escort Bayan VIP</a></li>
+      <li><a href="https://ficken-schweiz.ch/">Ficken Schweiz</a></li>
+      <li><a href="https://gratis-bumsen.ch/">Gratis Bumsen</a></li>
+      <li><a href="https://jungundwild.ch/">Jung und Wild</a></li>
+      <li><a href="https://partyescort.com/">Party Escort</a></li>
+      <li><a href="https://sexcharte.ch/">Sexcharte</a></li>
+      <li><a href="https://sex-kontakte-schweiz.ch/">Sex Kontakte Schweiz</a></li>
+      <li><a href="https://sex-map.com/">Sex Map</a></li>
+      <li><a href="https://sex-markt.ch/">Sex Markt</a></li>
+      <li><a href="https://blist.ch/">Erotic API</a></li>
+      <li><a href="https://backend.6love.ch/">Escort API</a></li>
+    </ul>
+  </div>
+  <div>
+    <h3>Cam Sites</h3>
+    <ul>
+      <li><a href="https://x-cam.ch/joinmenow">XCam</a></li>
+      <li><a href="https://susi.live/livelanding?ADR=wp0e4f15a0">Susi Live</a></li>
+      <li><a href="https://www.hotcam.ch/">Hotcam</a></li>
+      <li><a href="https://chaturbate.com/in/?tour=LQps&campaign=9MGQt&track=default&room=breakiboy">Chaturbate</a></li>
+      <li><a href="https://bongacams8.com/track?c=801025">Bongacams</a></li>
+      <li><a href="https://sex-now.ch/">Sexnow</a></li>
+      <li><a href="https://www.hotanddirty.ch/">HotAndDirty</a></li>
+      <li><a href="https://xdare.ch/">Xdare</a></li>
+      <li><a href="https://orospusepeti.com/">Orospu Sepeti</a></li>
+      <li><a href="https://creatorfans.net/">Creatorfans</a></li>
+    </ul>
+  </div>
+  <div>
+    <h3>Community</h3>
+    <ul>
+      <li><a href="https://forum.6love.ch">Forum 6love</a></li>
+      <li><a href="https://www.tumblr.com/blog/6lovech">Tumblr</a></li>
+      <li><a href="https://sixlove.ghost.io/">Sixlove Ghost</a></li>
+      <li><a href="https://xdateguide.blogspot.com">xdateguide</a></li>
+      <li><a href="https://medium.com/@sixlove">Medium</a></li>
+      <li><a href="https://telegra.ph/Geile-Xdates-in-der-Schweiz-01-09">Telegraph</a></li>
+      <li><a href="https://lustmsp.ch/">Lustmsp</a></li>
+      <li><a href="https://www.rotlichtadressen.ch/">Rotlichtadressen</a></li>
+      <li><a href="https://rotlichtmilieu.ch/">Rotlichtmilieu</a></li>
+      <li><a href="https://www.lang-strasse.ch">Langstrasse Zürich</a></li>
+      <li><a href="https://sex-portale.ch">Sex Portale Schweiz</a></li>
+      <li><a href="https://escort-search.com/">Escort Search</a></li>
+      <li><a href="https://escortyn.com/">Escortyn</a></li>
+      <li><a href="https://erotikbetriebe.ch/">Erotikbetriebe</a></li>
+      <li><a href="https://bayan-escort.com/">Bayan Escort</a></li>
+      <li><a href="https://bayan-escort.vip/">Bayan Escort VIP</a></li>
+      <li><a href="https://best-sex.ch/">Best Sex</a></li>
+      <li><a href="https://erotixxx.ch/">Erotixxx</a></li>
+      <li><a href="https://bio.site/sixlove">BioSite</a></li>
+      <li><a href="https://its-my.link/@6love">Its My Link</a></li>
+      <li><a href="https://heylink.me/sixlove/">HeyLink</a></li>
+    </ul>
+  </div>
+  <div>
+    <h3>Musik</h3>
+    <ul>
+      <li><a href="https://soundcloud.com/6love-ch">SoundCloud</a></li>
+      <li><a href="https://open.spotify.com/intl-de/artist/5Rw3tXSL4T7CcSTB3cjGu2">Spotify</a></li>
+      <li><a href="https://music.apple.com/us/artist/ezy/1856510680">iTunes</a></li>
+      <li><a href="https://www.youtube.com/@6love963">YouTube</a></li>
+      <li><a href="https://distrokid.com/hyperfollow/ezy12/ben-boss">ezy - Ben Boss</a></li>
+      <li><a href="https://distrokid.com/hyperfollow/ezy12/aka-gibi">ezy - Saka Gibi</a></li>
+    </ul>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-links">
+    <a href="https://6love.ch/de/privacy">Datenschutz</a>
+    <span class="divider">|</span>
+    <a href="https://6love.ch/de/terms">AGB</a>
+    <span class="divider">|</span>
+    <a href="https://6love.ch/de/about">Über uns</a>
+  </div>
+  <p class="copyright">
+    &copy; 2026 SixAds.ch - Powered by
+    <a href="https://6love.ch">6love.ch</a>
+  </p>
+</footer>
+
 </body>
 </html>
